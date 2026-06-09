@@ -125,7 +125,45 @@ def convert_hoppscotch_to_postman_collection_v21(hoppscotch_json_exported_file, 
         if query_params:
             url_object["query"] = query_params
 
-        return {
+        # Convert request-level variables to pre-request script
+        request_variables = hoppscotch_request.get("requestVariables", [])
+        event = []
+        if request_variables:
+            var_assignments = "\n".join([
+                f'pm.variables.set("{v["key"]}", "{replace_placeholders(v.get("value", ""))}");'
+                for v in request_variables
+            ])
+            event.append({
+                "listen": "prerequest",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [var_assignments]
+                }
+            })
+
+        # Add pre-request script if present
+        pre_request_script = hoppscotch_request.get("preRequestScript", "")
+        if pre_request_script:
+            event.append({
+                "listen": "prerequest",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [pre_request_script]
+                }
+            })
+
+        # Add test script if present
+        test_script = hoppscotch_request.get("testScript", "")
+        if test_script:
+            event.append({
+                "listen": "test",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [test_script]
+                }
+            })
+
+        result = {
             "name": hoppscotch_request["name"],
             "request": {
                 "method": hoppscotch_request["method"],
@@ -136,6 +174,10 @@ def convert_hoppscotch_to_postman_collection_v21(hoppscotch_json_exported_file, 
                 "description": hoppscotch_request.get("description", "")
             }
         }
+        if event:
+            result["event"] = event
+
+        return result
 
     # Recursively convert folders and requests
     def convert_folder(hoppscotch_folder):

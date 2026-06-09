@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hoppscotch-to-postman"
+version = "1.0.0"
+description = "Convert Hoppscotch exports to Postman v2.1 format"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+[project.scripts]
+hoppscotch-converter = "hoppscotch_converter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

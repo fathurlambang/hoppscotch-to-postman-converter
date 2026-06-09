@@ -3,3 +3,4 @@
 hoppscotch_exported_files/*
 __pycache__/
 *.egg-info/
+build/*

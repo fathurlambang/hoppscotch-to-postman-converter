@@ -137,6 +137,14 @@ def convert_hoppscotch_to_postman_collection_v21(hoppscotch_json_exported_file, 
     if "auth" in hoppscotch_data:
         postman_collection["auth"] = convert_auth(hoppscotch_data["auth"])
 
+    # Add collection variables if present
+    for variable in hoppscotch_data.get("variables", []):
+        postman_collection["variable"].append({
+            "key": variable.get("key", ""),
+            "value": variable.get("initialValue") or variable.get("value") or "",
+            "type": "text"
+        })
+
     # Generate file name based on the collection name
     if not output_file:
         output_file = f'{hoppscotch_data["name"]}-Postman_v2.1.json'

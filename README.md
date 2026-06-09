@@ -6,6 +6,7 @@ The **Hoppscotch to Postman Converter** is a Python CLI tool to convert Hoppscot
 
 ## Features
 
+- Auto-detect file type (collection or environment)
 - Convert Hoppscotch collections to Postman v2.1 collections
 - Convert Hoppscotch environments to Postman environment format
 - Supports various request types (GET, POST, PUT, DELETE, etc.)
@@ -20,7 +21,7 @@ The **Hoppscotch to Postman Converter** is a Python CLI tool to convert Hoppscot
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/hoppscotch-to-postman-converter.git
+git clone https://github.com/fathurlambang/hoppscotch-to-postman-converter.git
 cd hoppscotch-to-postman-converter
 pip install .
 ```
@@ -33,36 +34,41 @@ pip install -e .
 
 ## Usage
 
-### Convert Collection
+### Convert File
 
 ```bash
-# Single file (output: {name}-Postman_v2.1.json in current directory)
-hoppscotch-converter collection /path/to/hoppscotch_collection.json
+# Auto-detect (collection or environment)
+hoppscotch-converter /path/to/hoppscotch_file.json
 
-# All JSON files in a directory
-hoppscotch-converter collection /path/to/hoppscotch-exports/
-
-# Custom output directory
-hoppscotch-converter collection /path/to/exports/ -o ~/Desktop/postman-output
-
-# Filter files by name
-hoppscotch-converter collection /path/to/exports/ -f "Login"
+# Force type if auto-detect fails
+hoppscotch-converter /path/to/file.json -t collection
+hoppscotch-converter /path/to/file.json -t env
 ```
 
-### Convert Environment
+### Convert Directory
 
 ```bash
-# Single environment file
-hoppscotch-converter env /path/to/hoppscotch_exported_files/Local.json
-
-# All environments in a directory
-hoppscotch-converter env /path/to/hoppscotch_exported_files/
+# Convert all JSON files in a directory
+hoppscotch-converter /path/to/hoppscotch-exports/
 
 # Custom output directory
-hoppscotch-converter env /path/to/envs/ -o ~/Desktop/postman-envs
+hoppscotch-converter /path/to/exports/ -o ~/Desktop/postman-output
 
 # Filter files by name
-hoppscotch-converter env /path/to/envs/ -f "Staging"
+hoppscotch-converter /path/to/exports/ -f "Staging"
+```
+
+### Examples
+
+```bash
+# Convert single collection
+hoppscotch-converter ~/Downloads/HiRevo.json
+
+# Convert all environments to specific folder
+hoppscotch-converter ~/hoppscotch/env/ -o ~/Desktop/postman-envs
+
+# Convert only files containing "Login"
+hoppscotch-converter ~/hoppscotch/ -f "Login"
 ```
 
 ### Programmatic Usage

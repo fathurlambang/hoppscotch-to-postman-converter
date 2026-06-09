@@ -31,20 +31,43 @@ def convert_hoppscotch_to_postman_collection_v21(hoppscotch_json_exported_file, 
 
     # Helper function to convert auth details
     def convert_auth(hoppscotch_auth):
-        postman_auth = []
-        if hoppscotch_auth["authType"] == "bearer":
-            postman_auth = {
+        if not hoppscotch_auth:
+            return None
+
+        auth_type = hoppscotch_auth.get("authType", "none")
+
+        if auth_type == "bearer":
+            return {
                 "type": "bearer",
                 "bearer": [
-                    {"key": "token", "value": replace_placeholders(hoppscotch_auth.get("token", "")), "type": "string"}]
+                    {"key": "token", "value": replace_placeholders(hoppscotch_auth.get("token", "")), "type": "string"}
+                ]
             }
-        elif hoppscotch_auth["authType"] == "inherit":
-            postman_auth = {
-                "type": "inherit"
+        elif auth_type == "api-key":
+            key_name = hoppscotch_auth.get("key", "")
+            key_value = replace_placeholders(hoppscotch_auth.get("value", ""))
+            add_to = hoppscotch_auth.get("addTo", "HEADERS").upper()
+            return {
+                "type": "apikey",
+                "apikey": [
+                    {"key": "key", "value": key_name, "type": "string"},
+                    {"key": "value", "value": key_value, "type": "string"},
+                    {"key": "in", "value": "header" if add_to == "HEADERS" else "query", "type": "string"}
+                ]
             }
-        elif hoppscotch_auth["authType"] == "none":
-            postman_auth = {"type": "noauth"}
-        return postman_auth
+        elif auth_type == "basic":
+            return {
+                "type": "basic",
+                "basic": [
+                    {"key": "username", "value": replace_placeholders(hoppscotch_auth.get("username", "")), "type": "string"},
+                    {"key": "password", "value": replace_placeholders(hoppscotch_auth.get("password", "")), "type": "string"}
+                ]
+            }
+        elif auth_type == "inherit":
+            return {"type": "inherit"}
+        elif auth_type == "none":
+            return {"type": "noauth"}
+        return None
 
     # Helper function to convert headers
     def convert_headers(hoppscotch_headers):
@@ -134,8 +157,21 @@ def convert_hoppscotch_to_postman_collection_v21(hoppscotch_json_exported_file, 
         postman_collection["item"].append(convert_folder(folder))
 
     # Add global auth if present
-    if "auth" in hoppscotch_data:
-        postman_collection["auth"] = convert_auth(hoppscotch_data["auth"])
+    if hoppscotch_data.get("auth"):
+        auth = convert_auth(hoppscotch_data["auth"])
+        if auth:
+            postman_collection["auth"] = auth
+
+    # Add collection headers if present
+    for header in hoppscotch_data.get("headers", []):
+        if header.get("active", True):
+            postman_collection["event"].append({
+                "listen": "prerequest",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [f'pm.request.headers.add({{key: "{header["key"]}", value: "{replace_placeholders(header["value"])}"}});']
+                }
+            })
 
     # Add collection variables if present
     for variable in hoppscotch_data.get("variables", []):

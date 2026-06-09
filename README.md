@@ -20,6 +20,20 @@ The **Hoppscotch to Postman Converter** is a Python CLI tool to convert Hoppscot
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew install fathurlambang/tap/hoppscotch-converter
+```
+
+### Pip (Windows/macOS/Linux)
+
+```bash
+pip install hoppscotch-to-postman
+```
+
+### From Source (Windows/macOS/Linux)
+
 ```bash
 git clone https://github.com/fathurlambang/hoppscotch-to-postman-converter.git
 cd hoppscotch-to-postman-converter
